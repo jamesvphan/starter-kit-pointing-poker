@@ -12,19 +12,28 @@ const io = require("socket.io")(server, {
 });
 
 io.on('connection', (socket) => {
-    console.log('New client connected: ' + socket.id);
+  console.log('New client connected: ' + socket.id);
 
-    socket.on('vote', (data) => {
-        console.log(`Vote received: ${data} from ${socket.id}`);
+  socket.on('vote', (data) => {
+      console.log(`Vote received: ${data} from ${socket.id}`);
+      
+      // Broadcast the vote to all clients
+      io.emit('voteReceived', data); 
+  });
 
-        // Broadcast the vote to all clients
-        io.emit('voteReceived', data);
-    });
+  users.push(socket.id)
 
-    socket.on('disconnect', () => {
-        console.log('Client disconnected: ' + socket.id);
-    });
+  socket.on('retrieveUsers', () => {
+      io.emit('users', users)
+  })
+
+  socket.on('disconnect', () => {
+      console.log('Client disconnected: ' + socket.id);
+
+      users.filter((id) => socket.id !== id);
+      console.log(users)
+  });
 });
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -10,6 +10,7 @@ const socket = io('http://localhost:3001'); // Connect to the server
 
 function App() {
   const [votes, setVotes] = useState([]);
+  console.log(socket, socket)
 
   useEffect(() => {
     socket.on('voteReceived', (vote) => {
@@ -17,7 +18,16 @@ function App() {
     });
 
     return () => socket.off('voteReceived');
+
   }, []);
+
+  useEffect(() => {
+    socket.emit('retrieveUsers')
+
+    socket.on('users', (data) => {
+      console.log(data)
+    })
+  });
 
   const handleVote = (points) => {
     socket.emit('vote', points);
